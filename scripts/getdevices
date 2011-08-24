@@ -1,0 +1,3 @@
+#!/bin/sh
+curl -b /tmp/mydroidlink.cookies https://mydroidlink.appspot.com/api/1/device 
+

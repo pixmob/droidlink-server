@@ -1,0 +1,19 @@
+#!/bin/sh
+
+USER="$1"
+PASSWD="$2"
+
+function usage() {
+    echo "Usage: login <user> <password>"
+    exit 1
+}
+
+if [ "$USER" == "" ]; then
+    usage
+fi
+if [ "$PASSWD" == "" ]; then
+    usage
+fi
+
+AUTH=`curl -s -S -d "Email=$1" -d "Passwd=$2" -d accountType=GOOGLE -d service=ah -d source=mydroidlink https://www.google.com/accounts/ClientLogin | grep Auth | cut -b 6-`
+curl -s -S -c /tmp/mydroidlink.cookies https://mydroidlink.appspot.com/_ah/login?auth=$AUTH 2>&1 > /dev/null
