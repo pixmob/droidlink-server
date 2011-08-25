@@ -16,8 +16,10 @@
 package com.pixmob.droidlink.gae.web.service;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.logging.Logger;
 
@@ -51,6 +53,13 @@ import com.pixmob.droidlink.gae.service.EventType;
 @Service
 public class DeviceWebService {
     private static final String JSON_MIME_TYPE = "application/json";
+    private static final Map<Integer, EventType> INT_TO_EVENT_TYPES = new HashMap<Integer, EventType>(
+            2);
+    static {
+        INT_TO_EVENT_TYPES.put(0, EventType.MISSED_CALL);
+        INT_TO_EVENT_TYPES.put(1, EventType.RECEIVED_SMS);
+    }
+    
     private final Logger logger = Logger.getLogger(getClass().getName());
     private final User user;
     private final DeviceService deviceService;
@@ -60,7 +69,8 @@ public class DeviceWebService {
      * class.
      */
     @Inject
-    DeviceWebService(final DeviceService deviceService, @Nullable final User user) {
+    DeviceWebService(final DeviceService deviceService, @Nullable
+    final User user) {
         this.deviceService = deviceService;
         this.user = user;
     }
@@ -85,7 +95,8 @@ public class DeviceWebService {
     
     @At("/:deviceId")
     @Put
-    public Reply<?> registerDevice(Request request, @Named("deviceId") String deviceId) {
+    public Reply<?> registerDevice(Request request, @Named("deviceId")
+    String deviceId) {
         if (user == null) {
             return Reply.saying().unauthorized();
         }
@@ -115,7 +126,8 @@ public class DeviceWebService {
     
     @At("/:deviceId")
     @Delete
-    public Reply<?> unregisterDevice(@Named("deviceId") String deviceId) {
+    public Reply<?> unregisterDevice(@Named("deviceId")
+    String deviceId) {
         if (user == null) {
             return Reply.saying().unauthorized();
         }
@@ -132,7 +144,8 @@ public class DeviceWebService {
     
     @At("/:deviceId")
     @Post
-    public Reply<?> updateDevice(Request request, @Named("deviceId") String deviceId) {
+    public Reply<?> updateDevice(Request request, @Named("deviceId")
+    String deviceId) {
         if (user == null) {
             return Reply.saying().unauthorized();
         }
@@ -153,7 +166,9 @@ public class DeviceWebService {
     
     @At("/:deviceId/:eventId")
     @Get
-    public Reply<?> getEvent(@Named("deviceId") String deviceId, @Named("eventId") String eventId) {
+    public Reply<?> getEvent(@Named("deviceId")
+    String deviceId, @Named("eventId")
+    String eventId) {
         if (user == null) {
             return Reply.saying().unauthorized();
         }
@@ -174,7 +189,8 @@ public class DeviceWebService {
     
     @At("/:deviceId")
     @Get
-    public Reply<?> getEvents(@Named("deviceId") String deviceId) {
+    public Reply<?> getEvents(@Named("deviceId")
+    String deviceId) {
         if (user == null) {
             return Reply.saying().unauthorized();
         }
@@ -201,7 +217,9 @@ public class DeviceWebService {
     
     @At("/:deviceId/:eventId")
     @Delete
-    public Reply<?> deleteEvent(@Named("deviceId") String deviceId, @Named("eventId") String eventId) {
+    public Reply<?> deleteEvent(@Named("deviceId")
+    String deviceId, @Named("eventId")
+    String eventId) {
         if (user == null) {
             return Reply.saying().unauthorized();
         }
@@ -218,23 +236,24 @@ public class DeviceWebService {
     
     @At("/:deviceId/:eventId")
     @Put
-    public Reply<?> addEvent(Request request, @Named("deviceId") String deviceId,
-            @Named("eventId") String eventId) {
+    public Reply<?> addEvent(Request request, @Named("deviceId")
+    String deviceId, @Named("eventId")
+    String eventId) {
         if (user == null) {
             return Reply.saying().unauthorized();
         }
         
-        // TODO fill event fields
-        final long eventDate = System.currentTimeMillis();
-        final EventType eventType = EventType.RECEIVED_SMS;
-        final String eventNumber = "123";
-        final String eventName = "John Doe";
-        final String eventMessage = "Hello world!";
+        final EventRemote event = request.read(EventRemote.class).as(Json.class);
+        final EventType eventType = INT_TO_EVENT_TYPES.get(event.type);
+        if (eventType == null) {
+            logger.warning("Invalid event type: " + event.type);
+            return Reply.saying().error();
+        }
         
         logger.info("Add new event " + eventId + " for device " + deviceId);
         try {
-            deviceService.addEvent(user.getEmail(), deviceId, eventId, eventDate, eventType,
-                eventNumber, eventName, eventMessage);
+            deviceService.addEvent(user.getEmail(), deviceId, eventId, event.date, eventType,
+                event.number, event.name, event.message);
         } catch (AccessDeniedException e) {
             return Reply.saying().forbidden();
         } catch (DeviceNotFoundException e) {

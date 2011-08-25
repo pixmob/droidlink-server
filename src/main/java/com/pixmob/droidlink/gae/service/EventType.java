@@ -20,5 +20,5 @@ package com.pixmob.droidlink.gae.service;
  * @author Pixmob
  */
 public enum EventType {
-    RECEIVED_SMS, MISSED_CALL
+    MISSED_CALL, RECEIVED_SMS
 }
