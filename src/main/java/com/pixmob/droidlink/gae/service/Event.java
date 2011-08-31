@@ -34,5 +34,5 @@ public class Event {
     public String number;
     public String name;
     public String message;
-    public long uploadTime;
+    public long update;
 }

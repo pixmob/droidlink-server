@@ -24,6 +24,7 @@ import com.pixmob.droidlink.gae.service.Device;
 class DeviceRemote {
     public String id;
     public String name;
+    public String c2dm;
     
     public DeviceRemote() {
     }
@@ -31,6 +32,7 @@ class DeviceRemote {
     public DeviceRemote(final Device device) {
         id = device.id;
         name = device.name;
+        c2dm = device.c2dm;
     }
     
     public String getId() {
@@ -47,5 +49,13 @@ class DeviceRemote {
     
     public void setName(String name) {
         this.name = name;
+    }
+    
+    public String getC2dm() {
+        return c2dm;
+    }
+    
+    public void setC2dm(String c2dm) {
+        this.c2dm = c2dm;
     }
 }

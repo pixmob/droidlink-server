@@ -26,6 +26,7 @@ public class Device {
     public String id;
     public String user;
     public String name;
+    public String c2dm;
     
     @Override
     public String toString() {
