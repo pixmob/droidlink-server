@@ -127,15 +127,39 @@ public class DeviceService {
         return of.begin().query(Device.class).filter("user", user);
     }
     
-    public Device registerDevice(String user, String deviceId, String deviceName) {
+    public Device registerDevice(String user, String deviceId, String deviceName, String c2dm)
+            throws AccessDeniedException {
         checkNotNull(user, "User is required");
         checkNotNull(deviceId, "Device identifier is required");
         
-        final Device device = new Device();
-        device.id = deviceId;
-        device.user = user;
-        device.name = deviceName;
-        of.begin().put(device);
+        final Objectify session = of.beginTransaction();
+        Device device = null;
+        try {
+            device = session.find(new Key<Device>(Device.class, deviceId));
+            if (device == null) {
+                device = new Device();
+                device.id = deviceId;
+                device.user = user;
+            } else {
+                if (!device.user.equals(user)) {
+                    throw new AccessDeniedException();
+                }
+            }
+            
+            if (deviceName != null) {
+                device.name = deviceName;
+            }
+            if (c2dm != null) {
+                device.c2dm = c2dm;
+            }
+            
+            session.put(device);
+            session.getTxn().commit();
+        } finally {
+            if (session.getTxn().isActive()) {
+                session.getTxn().rollback();
+            }
+        }
         
         return device;
     }
@@ -165,30 +189,6 @@ public class DeviceService {
                         .fetchKeys();
                 session.delete(events);
                 session.delete(device);
-            }
-        }
-    }
-    
-    public void updateDevice(String user, String deviceId, String name)
-            throws DeviceNotFoundException, AccessDeniedException {
-        checkNotNull(user, "User is required");
-        checkNotNull(deviceId, "Device identifier is required");
-        
-        final Objectify session = of.beginTransaction();
-        try {
-            final Device device = session.find(Device.class, deviceId);
-            if (device == null) {
-                throw new DeviceNotFoundException(deviceId);
-            }
-            if (!user.equals(device.user)) {
-                throw new AccessDeniedException();
-            }
-            device.name = name;
-            session.put(device);
-            session.getTxn().commit();
-        } finally {
-            if (session.getTxn().isActive()) {
-                session.getTxn().rollback();
             }
         }
     }

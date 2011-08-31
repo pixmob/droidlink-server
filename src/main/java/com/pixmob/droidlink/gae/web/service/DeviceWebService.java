@@ -35,7 +35,6 @@ import com.google.sitebricks.headless.Request;
 import com.google.sitebricks.headless.Service;
 import com.google.sitebricks.http.Delete;
 import com.google.sitebricks.http.Get;
-import com.google.sitebricks.http.Post;
 import com.google.sitebricks.http.Put;
 import com.pixmob.droidlink.gae.service.AccessDeniedException;
 import com.pixmob.droidlink.gae.service.Device;
@@ -99,9 +98,13 @@ public class DeviceWebService {
             return Reply.saying().unauthorized();
         }
         
-        final String deviceName = "Unknown";
+        final DeviceRemote device = request.read(DeviceRemote.class).as(Json.class);
         logger.info("Register device " + deviceId);
-        deviceService.registerDevice(user.getEmail(), deviceId, deviceName);
+        try {
+            deviceService.registerDevice(user.getEmail(), deviceId, device.name, device.c2dm);
+        } catch (AccessDeniedException e) {
+            return Reply.saying().forbidden();
+        }
         
         return Reply.saying().ok();
     }
@@ -134,27 +137,6 @@ public class DeviceWebService {
             deviceService.unregisterDevice(user.getEmail(), deviceId);
         } catch (AccessDeniedException e) {
             return Reply.saying().forbidden();
-        }
-        
-        return Reply.saying().ok();
-    }
-    
-    @At("/:deviceId")
-    @Post
-    public Reply<?> updateDevice(Request request, @Named("deviceId") String deviceId) {
-        if (user == null) {
-            return Reply.saying().unauthorized();
-        }
-        
-        final DeviceRemote dr = request.read(DeviceRemote.class).as(Json.class);
-        
-        logger.info("Update device " + deviceId);
-        try {
-            deviceService.updateDevice(user.getEmail(), deviceId, dr.name);
-        } catch (AccessDeniedException e) {
-            return Reply.saying().forbidden();
-        } catch (DeviceNotFoundException e) {
-            return Reply.saying().notFound();
         }
         
         return Reply.saying().ok();
