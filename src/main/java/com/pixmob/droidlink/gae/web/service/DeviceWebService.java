@@ -69,8 +69,7 @@ public class DeviceWebService {
      * class.
      */
     @Inject
-    DeviceWebService(final DeviceService deviceService, @Nullable
-    final User user) {
+    DeviceWebService(final DeviceService deviceService, @Nullable final User user) {
         this.deviceService = deviceService;
         this.user = user;
     }
@@ -95,8 +94,7 @@ public class DeviceWebService {
     
     @At("/:deviceId")
     @Put
-    public Reply<?> registerDevice(Request request, @Named("deviceId")
-    String deviceId) {
+    public Reply<?> registerDevice(Request request, @Named("deviceId") String deviceId) {
         if (user == null) {
             return Reply.saying().unauthorized();
         }
@@ -126,8 +124,7 @@ public class DeviceWebService {
     
     @At("/:deviceId")
     @Delete
-    public Reply<?> unregisterDevice(@Named("deviceId")
-    String deviceId) {
+    public Reply<?> unregisterDevice(@Named("deviceId") String deviceId) {
         if (user == null) {
             return Reply.saying().unauthorized();
         }
@@ -144,8 +141,7 @@ public class DeviceWebService {
     
     @At("/:deviceId")
     @Post
-    public Reply<?> updateDevice(Request request, @Named("deviceId")
-    String deviceId) {
+    public Reply<?> updateDevice(Request request, @Named("deviceId") String deviceId) {
         if (user == null) {
             return Reply.saying().unauthorized();
         }
@@ -166,9 +162,7 @@ public class DeviceWebService {
     
     @At("/:deviceId/:eventId")
     @Get
-    public Reply<?> getEvent(@Named("deviceId")
-    String deviceId, @Named("eventId")
-    String eventId) {
+    public Reply<?> getEvent(@Named("deviceId") String deviceId, @Named("eventId") String eventId) {
         if (user == null) {
             return Reply.saying().unauthorized();
         }
@@ -189,8 +183,7 @@ public class DeviceWebService {
     
     @At("/:deviceId")
     @Get
-    public Reply<?> getEvents(@Named("deviceId")
-    String deviceId) {
+    public Reply<?> getEvents(@Named("deviceId") String deviceId) {
         if (user == null) {
             return Reply.saying().unauthorized();
         }
@@ -217,9 +210,7 @@ public class DeviceWebService {
     
     @At("/:deviceId/:eventId")
     @Delete
-    public Reply<?> deleteEvent(@Named("deviceId")
-    String deviceId, @Named("eventId")
-    String eventId) {
+    public Reply<?> deleteEvent(@Named("deviceId") String deviceId, @Named("eventId") String eventId) {
         if (user == null) {
             return Reply.saying().unauthorized();
         }
@@ -236,9 +227,8 @@ public class DeviceWebService {
     
     @At("/:deviceId/:eventId")
     @Put
-    public Reply<?> addEvent(Request request, @Named("deviceId")
-    String deviceId, @Named("eventId")
-    String eventId) {
+    public Reply<?> addEvent(Request request, @Named("deviceId") String deviceId,
+            @Named("eventId") String eventId) {
         if (user == null) {
             return Reply.saying().unauthorized();
         }
@@ -252,7 +242,7 @@ public class DeviceWebService {
         
         logger.info("Add new event " + eventId + " for device " + deviceId);
         try {
-            deviceService.addEvent(user.getEmail(), deviceId, eventId, event.date, eventType,
+            deviceService.addEvent(user.getEmail(), deviceId, eventId, event.created, eventType,
                 event.number, event.name, event.message);
         } catch (AccessDeniedException e) {
             return Reply.saying().forbidden();

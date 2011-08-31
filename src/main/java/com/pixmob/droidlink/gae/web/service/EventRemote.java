@@ -23,7 +23,7 @@ import com.pixmob.droidlink.gae.service.Event;
  */
 class EventRemote {
     public String id;
-    public long date;
+    public long created;
     public int type;
     public String name;
     public String number;
@@ -34,7 +34,7 @@ class EventRemote {
     
     public EventRemote(final Event event) {
         id = event.id;
-        date = event.date;
+        created = event.date;
         type = event.type.ordinal();
         name = event.name;
         number = event.number;
@@ -49,12 +49,12 @@ class EventRemote {
         this.id = id;
     }
     
-    public long getDate() {
-        return date;
+    public long getCreated() {
+        return created;
     }
     
-    public void setDate(long date) {
-        this.date = date;
+    public void setCreated(long created) {
+        this.created = created;
     }
     
     public int getType() {
