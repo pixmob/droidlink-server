@@ -16,6 +16,8 @@
 package com.pixmob.droidlink.gae;
 
 import com.google.android.c2dm.server.C2DMModule;
+import com.google.appengine.api.taskqueue.Queue;
+import com.google.appengine.api.taskqueue.QueueFactory;
 import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
@@ -25,8 +27,11 @@ import com.google.inject.Injector;
 import com.google.inject.Provides;
 import com.google.inject.Singleton;
 import com.google.inject.servlet.GuiceServletContextListener;
+import com.google.sitebricks.SitebricksModule;
+import com.pixmob.droidlink.gae.queue.SyncQueue;
 import com.pixmob.droidlink.gae.service.ServiceModule;
-import com.pixmob.droidlink.gae.web.service.WebServiceModule;
+import com.pixmob.droidlink.gae.web.service.DeviceWebService;
+import com.pixmob.droidlink.gae.web.service.SyncWebService;
 
 /**
  * Guice application configuration.
@@ -35,8 +40,8 @@ import com.pixmob.droidlink.gae.web.service.WebServiceModule;
 public class AppConfig extends GuiceServletContextListener {
     @Override
     protected Injector getInjector() {
-        return Guice.createInjector(new AppEngineModule(), new ServiceModule(),
-            new WebServiceModule(), new C2DMModule());
+        return Guice.createInjector(new AppEngineModule(), new ServiceModule(), new WebModule(),
+            new C2DMModule());
     }
     
     /**
@@ -57,6 +62,25 @@ public class AppConfig extends GuiceServletContextListener {
         @Provides
         public User getUser(UserService userService) {
             return userService.getCurrentUser();
+        }
+        
+        @Provides
+        @Singleton
+        public Queue getSyncQueue() {
+            return QueueFactory.getQueue("sync");
+        }
+    }
+    
+    /**
+     * Guice configuration module for web resources powered by Sitebricks.
+     * @author Pixmob
+     */
+    static class WebModule extends SitebricksModule {
+        @Override
+        protected void configureSitebricks() {
+            at("/api/1/device").serve(DeviceWebService.class);
+            at("/api/1/sync").serve(SyncWebService.class);
+            at("/tasks/sync").serve(SyncQueue.class);
         }
     }
 }

@@ -28,6 +28,7 @@ public class ServiceModule extends AbstractModule {
     @Override
     protected void configure() {
         bind(DeviceService.class).in(Singleton.class);
+        bind(PushService.class).in(Singleton.class);
     }
     
     @Provides

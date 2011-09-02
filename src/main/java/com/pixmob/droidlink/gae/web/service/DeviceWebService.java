@@ -15,20 +15,16 @@
  */
 package com.pixmob.droidlink.gae.web.service;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.annotation.Nullable;
-import javax.servlet.ServletContext;
 
-import com.google.android.c2dm.server.C2DMessaging;
 import com.google.appengine.api.users.User;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
@@ -40,7 +36,6 @@ import com.google.sitebricks.headless.Service;
 import com.google.sitebricks.http.Delete;
 import com.google.sitebricks.http.Get;
 import com.google.sitebricks.http.Put;
-import com.pixmob.droidlink.gae.Constants;
 import com.pixmob.droidlink.gae.service.AccessDeniedException;
 import com.pixmob.droidlink.gae.service.Device;
 import com.pixmob.droidlink.gae.service.DeviceNotFoundException;
@@ -48,6 +43,7 @@ import com.pixmob.droidlink.gae.service.DeviceService;
 import com.pixmob.droidlink.gae.service.Event;
 import com.pixmob.droidlink.gae.service.EventNotFoundException;
 import com.pixmob.droidlink.gae.service.EventType;
+import com.pixmob.droidlink.gae.service.PushService;
 
 /**
  * Remote API for managing devices.
@@ -67,17 +63,17 @@ public class DeviceWebService {
     private final Logger logger = Logger.getLogger(getClass().getName());
     private final User user;
     private final DeviceService deviceService;
-    private final C2DMessaging c2dMessaging;
+    private final PushService pushService;
     
     /**
      * Package protected constructor: use Guice to get an instance of this
      * class.
      */
     @Inject
-    DeviceWebService(final DeviceService deviceService, final C2DMessaging c2dMessaging,
+    DeviceWebService(final DeviceService deviceService, final PushService pushService,
             @Nullable final User user) {
         this.deviceService = deviceService;
-        this.c2dMessaging = c2dMessaging;
+        this.pushService = pushService;
         this.user = user;
     }
     
@@ -200,8 +196,7 @@ public class DeviceWebService {
     
     @At("/:deviceId/:eventId")
     @Delete
-    public Reply<?> deleteEvent(ServletContext servletContext, @Named("deviceId") String deviceId,
-            @Named("eventId") String eventId) {
+    public Reply<?> deleteEvent(@Named("deviceId") String deviceId, @Named("eventId") String eventId) {
         if (user == null) {
             return Reply.saying().unauthorized();
         }
@@ -213,15 +208,15 @@ public class DeviceWebService {
             return Reply.saying().forbidden();
         }
         
-        triggerUserSync(servletContext, deviceId);
+        triggerUserSync(deviceId);
         
         return Reply.saying().ok();
     }
     
     @At("/:deviceId/:eventId")
     @Put
-    public Reply<?> addEvent(Request request, ServletContext servletContext,
-            @Named("deviceId") String deviceId, @Named("eventId") String eventId) {
+    public Reply<?> addEvent(Request request, @Named("deviceId") String deviceId,
+            @Named("eventId") String eventId) {
         if (user == null) {
             return Reply.saying().unauthorized();
         }
@@ -243,25 +238,13 @@ public class DeviceWebService {
             return Reply.saying().notFound();
         }
         
-        triggerUserSync(servletContext, deviceId);
+        triggerUserSync(deviceId);
         
         return Reply.saying().ok();
     }
     
-    private void triggerUserSync(ServletContext servletContext, String deviceIdSource) {
+    private void triggerUserSync(String deviceIdSource) {
         logger.info("Trigger user sync through C2DM for user " + user.getEmail());
-        
-        final String collapseKey = Long.toHexString(user.getEmail().hashCode());
-        for (final Device device : deviceService.getDevices(user.getEmail())) {
-            if (device.id.equals(deviceIdSource) || device.c2dm == null) {
-                continue;
-            }
-            try {
-                c2dMessaging.sendWithRetry(device.c2dm, collapseKey, Constants.C2DM_MESSAGE_EXTRA,
-                    Constants.C2DM_MESSAGE_SYNC, Constants.C2DM_ACCOUNT_EXTRA, user.getEmail());
-            } catch (IOException e) {
-                logger.log(Level.SEVERE, "Failed to trigger user sync through C2DM", e);
-            }
-        }
+        pushService.syncDevices(user.getEmail(), deviceIdSource);
     }
 }
