@@ -17,16 +17,19 @@ package com.google.android.c2dm.server;
 
 import javax.persistence.Id;
 
+import com.googlecode.objectify.annotation.Cached;
+
 /**
  * Persistent config info for the server - authentication token
  */
+@Cached
 public final class C2DMConfig {
     @Id
     private Long key;
     private String authToken;
     
     public String getAuthToken() {
-        return (authToken == null) ? "" : authToken;
+        return authToken == null ? "" : authToken;
     }
     
     public void setAuthToken(String authToken) {
