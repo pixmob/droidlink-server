@@ -20,7 +20,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.logging.Logger;
 
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -33,7 +32,6 @@ import com.googlecode.objectify.ObjectifyFactory;
  */
 @Singleton
 class C2DMConfigLoader {
-    private static final Logger log = Logger.getLogger(C2DMConfigLoader.class.getName());
     private final ObjectifyFactory of;
     
     private String currentToken;

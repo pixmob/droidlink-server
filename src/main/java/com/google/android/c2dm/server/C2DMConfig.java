@@ -24,6 +24,7 @@ import com.googlecode.objectify.annotation.Cached;
  */
 @Cached
 public final class C2DMConfig {
+    @SuppressWarnings("unused")
     @Id
     private Long key;
     private String authToken;
