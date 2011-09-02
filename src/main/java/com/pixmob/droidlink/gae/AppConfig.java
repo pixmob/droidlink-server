@@ -15,6 +15,7 @@
  */
 package com.pixmob.droidlink.gae;
 
+import com.google.android.c2dm.server.C2DMModule;
 import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
@@ -35,7 +36,7 @@ public class AppConfig extends GuiceServletContextListener {
     @Override
     protected Injector getInjector() {
         return Guice.createInjector(new AppEngineModule(), new ServiceModule(),
-            new WebServiceModule());
+            new WebServiceModule(), new C2DMModule());
     }
     
     /**
