@@ -78,9 +78,9 @@ public class AppConfig extends GuiceServletContextListener {
     static class WebModule extends SitebricksModule {
         @Override
         protected void configureSitebricks() {
-            at("/api/1/device").serve(DeviceWebService.class);
-            at("/api/1/sync").serve(SyncWebService.class);
-            at("/tasks/sync").serve(SyncQueue.class);
+            at(DeviceWebService.URI).serve(DeviceWebService.class);
+            at(SyncWebService.URI).serve(SyncWebService.class);
+            at(SyncQueue.URI).serve(SyncQueue.class);
         }
     }
 }

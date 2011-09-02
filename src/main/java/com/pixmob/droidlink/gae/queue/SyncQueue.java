@@ -28,9 +28,14 @@ import com.google.sitebricks.headless.Service;
 import com.google.sitebricks.http.Post;
 import com.pixmob.droidlink.gae.service.PushService;
 
-@At("/tasks/sync")
+/**
+ * Send push notification to user devices.
+ * @author Pixmob
+ */
+@At(SyncQueue.URI)
 @Service
 public class SyncQueue {
+    public static final String URI = "/tasks/sync";
     private final Logger logger = Logger.getLogger(getClass().getName());
     private final PushService pushService;
     

@@ -49,9 +49,10 @@ import com.pixmob.droidlink.gae.service.PushService;
  * Remote API for managing devices.
  * @author Pixmob
  */
-@At("/api/1/device")
+@At(DeviceWebService.URI)
 @Service
 public class DeviceWebService {
+    public static final String URI = "/api/1/device";
     private static final String JSON_MIME_TYPE = "application/json";
     private static final Map<Integer, EventType> INT_TO_EVENT_TYPES = new HashMap<Integer, EventType>(
             2);

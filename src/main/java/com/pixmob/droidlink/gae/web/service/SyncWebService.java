@@ -33,9 +33,10 @@ import com.google.sitebricks.http.Get;
  * Trigger user device synchronization by sending a push notification.
  * @author Pixmob
  */
-@At("/api/1/sync")
+@At(SyncWebService.URI)
 @Service
 public class SyncWebService {
+    public static final String URI = "/api/1/sync";
     private final Logger logger = Logger.getLogger(getClass().getName());
     private final Queue syncQueue;
     private final User user;
