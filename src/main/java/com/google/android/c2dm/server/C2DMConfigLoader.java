@@ -83,7 +83,8 @@ class C2DMConfigLoader {
     }
     
     private C2DMConfig getC2DMConfig(Objectify session) {
-        C2DMConfig dmConfig = session.find(new Key<C2DMConfig>(C2DMConfig.class, 1));
+        final long key = 1L;
+        C2DMConfig dmConfig = session.find(new Key<C2DMConfig>(C2DMConfig.class, key));
         if (dmConfig == null) {
             String token = null;
             
@@ -105,6 +106,7 @@ class C2DMConfigLoader {
             }
             if (token != null) {
                 dmConfig = new C2DMConfig();
+                dmConfig.setKey(key);
                 dmConfig.setAuthToken(token);
                 session.put(dmConfig);
             } else {
