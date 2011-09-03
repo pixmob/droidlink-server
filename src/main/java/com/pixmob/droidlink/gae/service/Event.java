@@ -18,21 +18,29 @@ package com.pixmob.droidlink.gae.service;
 import javax.persistence.Id;
 
 import com.googlecode.objectify.Key;
+import com.googlecode.objectify.annotation.Cached;
+import com.googlecode.objectify.annotation.Indexed;
 import com.googlecode.objectify.annotation.Parent;
+import com.googlecode.objectify.annotation.Unindexed;
 
 /**
  * Event datastore entity.
  * @author Pixmob
  */
+@Cached
+@Unindexed
 public class Event {
     @Id
+    @Indexed
     public String id;
     @Parent
+    @Indexed
     public Key<Device> device;
     public EventType type;
     public long date;
     public String number;
     public String name;
     public String message;
+    @Indexed
     public long update;
 }

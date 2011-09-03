@@ -17,13 +17,21 @@ package com.pixmob.droidlink.gae.service;
 
 import javax.persistence.Id;
 
+import com.googlecode.objectify.annotation.Cached;
+import com.googlecode.objectify.annotation.Indexed;
+import com.googlecode.objectify.annotation.Unindexed;
+
 /**
  * Device datastore entity.
  * @author Pixmob
  */
+@Cached
+@Unindexed
 public class Device {
     @Id
+    @Indexed
     public String id;
+    @Indexed
     public String user;
     public String name;
     public String c2dm;
