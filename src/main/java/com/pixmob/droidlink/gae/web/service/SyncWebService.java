@@ -24,10 +24,12 @@ import javax.annotation.Nullable;
 import com.google.appengine.api.taskqueue.Queue;
 import com.google.appengine.api.users.User;
 import com.google.inject.Inject;
+import com.google.inject.name.Named;
 import com.google.sitebricks.At;
 import com.google.sitebricks.headless.Reply;
 import com.google.sitebricks.headless.Service;
 import com.google.sitebricks.http.Get;
+import com.pixmob.droidlink.gae.queue.SyncQueue;
 
 /**
  * Trigger user device synchronization by sending a push notification.
@@ -42,7 +44,7 @@ public class SyncWebService {
     private final User user;
     
     @Inject
-    SyncWebService(final Queue syncQueue, @Nullable final User user) {
+    SyncWebService(@Named("sync") final Queue syncQueue, @Nullable final User user) {
         this.syncQueue = syncQueue;
         this.user = user;
     }
@@ -55,7 +57,7 @@ public class SyncWebService {
         
         // Delegate to the sync queue.
         logger.info("Queue device sync for user " + user.getEmail());
-        syncQueue.add(withUrl("/tasks/sync").param("user", user.getEmail()));
+        syncQueue.add(withUrl(SyncQueue.URI).param(SyncQueue.USER_PARAM, user.getEmail()));
         
         return Reply.saying().ok();
     }

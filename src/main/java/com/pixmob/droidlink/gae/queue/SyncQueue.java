@@ -36,6 +36,8 @@ import com.pixmob.droidlink.gae.service.PushService;
 @Service
 public class SyncQueue {
     public static final String URI = "/tasks/sync";
+    public static final String USER_PARAM = "user";
+    public static final String DEVICE_ID_SOURCE_PARAM = "deviceIdSource";
     private final Logger logger = Logger.getLogger(getClass().getName());
     private final PushService pushService;
     
@@ -46,12 +48,14 @@ public class SyncQueue {
     
     @Post
     public Reply<?> sync(Request request) {
-        final String user = request.param("user");
+        final String user = request.param(USER_PARAM);
         checkNotNull(user, "User is required");
         checkArgument(user.length() != 0, "User is required");
         
-        logger.info("Sync every device for user " + user);
-        pushService.syncDevices(user, null);
+        final String deviceIdSource = request.param(DEVICE_ID_SOURCE_PARAM);
+        
+        logger.info("Sync devices for user " + user + " (deviceIdSource=" + deviceIdSource + ")");
+        pushService.syncDevices(user, deviceIdSource);
         
         return Reply.saying().ok();
     }
