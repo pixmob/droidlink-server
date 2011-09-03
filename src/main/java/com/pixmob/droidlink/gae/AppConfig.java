@@ -16,6 +16,8 @@
 package com.pixmob.droidlink.gae;
 
 import com.google.android.c2dm.server.C2DMModule;
+import com.google.appengine.api.memcache.MemcacheService;
+import com.google.appengine.api.memcache.MemcacheServiceFactory;
 import com.google.appengine.api.taskqueue.Queue;
 import com.google.appengine.api.taskqueue.QueueFactory;
 import com.google.appengine.api.users.UserService;
@@ -28,6 +30,7 @@ import com.google.inject.servlet.GuiceServletContextListener;
 import com.google.sitebricks.SitebricksModule;
 import com.pixmob.droidlink.gae.queue.SyncQueue;
 import com.pixmob.droidlink.gae.service.ServiceModule;
+import com.pixmob.droidlink.gae.web.service.ClearCacheWebService;
 import com.pixmob.droidlink.gae.web.service.DeviceWebService;
 import com.pixmob.droidlink.gae.web.service.SyncWebService;
 
@@ -52,6 +55,7 @@ public class AppConfig extends GuiceServletContextListener {
             bind(Queue.class).annotatedWith(Names.named("sync")).toInstance(
                 QueueFactory.getQueue("sync"));
             bind(UserService.class).toInstance(UserServiceFactory.getUserService());
+            bind(MemcacheService.class).toInstance(MemcacheServiceFactory.getMemcacheService());
         }
     }
     
@@ -65,6 +69,7 @@ public class AppConfig extends GuiceServletContextListener {
             at(DeviceWebService.URI).serve(DeviceWebService.class);
             at(SyncWebService.URI).serve(SyncWebService.class);
             at(SyncQueue.URI).serve(SyncQueue.class);
+            at(ClearCacheWebService.URI).serve(ClearCacheWebService.class);
         }
     }
 }
