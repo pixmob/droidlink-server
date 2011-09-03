@@ -16,7 +16,6 @@
 package com.pixmob.droidlink.gae.service;
 
 import com.google.inject.AbstractModule;
-import com.google.inject.Provides;
 import com.google.inject.Singleton;
 import com.googlecode.objectify.ObjectifyFactory;
 
@@ -27,16 +26,12 @@ import com.googlecode.objectify.ObjectifyFactory;
 public class ServiceModule extends AbstractModule {
     @Override
     protected void configure() {
-        bind(DeviceService.class).in(Singleton.class);
-        bind(PushService.class).in(Singleton.class);
-    }
-    
-    @Provides
-    @Singleton
-    public ObjectifyFactory getObjectifyFactory() {
         final ObjectifyFactory of = new ObjectifyFactory();
         of.register(Device.class);
         of.register(Event.class);
-        return of;
+        bind(ObjectifyFactory.class).toInstance(of);
+        
+        bind(DeviceService.class).in(Singleton.class);
+        bind(PushService.class).in(Singleton.class);
     }
 }

@@ -19,10 +19,9 @@ import static com.google.appengine.api.taskqueue.TaskOptions.Builder.withUrl;
 
 import java.util.logging.Logger;
 
-import javax.annotation.Nullable;
-
 import com.google.appengine.api.taskqueue.Queue;
 import com.google.appengine.api.users.User;
+import com.google.appengine.api.users.UserService;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import com.google.sitebricks.At;
@@ -41,16 +40,17 @@ public class SyncWebService {
     public static final String URI = "/api/1/sync";
     private final Logger logger = Logger.getLogger(getClass().getName());
     private final Queue syncQueue;
-    private final User user;
+    private final UserService userService;
     
     @Inject
-    SyncWebService(@Named("sync") final Queue syncQueue, @Nullable final User user) {
+    SyncWebService(@Named("sync") final Queue syncQueue, final UserService userService) {
         this.syncQueue = syncQueue;
-        this.user = user;
+        this.userService = userService;
     }
     
     @Get
     public Reply<?> sync() {
+        final User user = userService.getCurrentUser();
         if (user == null) {
             return Reply.saying().unauthorized();
         }

@@ -25,10 +25,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.logging.Logger;
 
-import javax.annotation.Nullable;
-
 import com.google.appengine.api.taskqueue.Queue;
 import com.google.appengine.api.users.User;
+import com.google.appengine.api.users.UserService;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
 import com.google.sitebricks.At;
@@ -65,7 +64,7 @@ public class DeviceWebService {
     }
     
     private final Logger logger = Logger.getLogger(getClass().getName());
-    private final User user;
+    private final UserService userService;
     private final DeviceService deviceService;
     private final Queue syncQueue;
     
@@ -75,14 +74,15 @@ public class DeviceWebService {
      */
     @Inject
     DeviceWebService(final DeviceService deviceService, @Named("sync") final Queue syncQueue,
-            @Nullable final User user) {
+            final UserService userService) {
         this.deviceService = deviceService;
         this.syncQueue = syncQueue;
-        this.user = user;
+        this.userService = userService;
     }
     
     @Get
     public Reply<?> getAllDevices() {
+        final User user = userService.getCurrentUser();
         if (user == null) {
             return Reply.saying().unauthorized();
         }
@@ -102,6 +102,7 @@ public class DeviceWebService {
     @At("/:deviceId")
     @Put
     public Reply<?> registerDevice(Request request, @Named("deviceId") String deviceId) {
+        final User user = userService.getCurrentUser();
         if (user == null) {
             return Reply.saying().unauthorized();
         }
@@ -119,6 +120,7 @@ public class DeviceWebService {
     
     @Delete
     public Reply<?> unregisterDevices() {
+        final User user = userService.getCurrentUser();
         if (user == null) {
             return Reply.saying().unauthorized();
         }
@@ -136,6 +138,7 @@ public class DeviceWebService {
     @At("/:deviceId")
     @Delete
     public Reply<?> unregisterDevice(@Named("deviceId") String deviceId) {
+        final User user = userService.getCurrentUser();
         if (user == null) {
             return Reply.saying().unauthorized();
         }
@@ -153,6 +156,7 @@ public class DeviceWebService {
     @At("/:deviceId/:eventId")
     @Get
     public Reply<?> getEvent(@Named("deviceId") String deviceId, @Named("eventId") String eventId) {
+        final User user = userService.getCurrentUser();
         if (user == null) {
             return Reply.saying().unauthorized();
         }
@@ -174,6 +178,7 @@ public class DeviceWebService {
     @At("/:deviceId")
     @Get
     public Reply<?> getEvents(@Named("deviceId") String deviceId) {
+        final User user = userService.getCurrentUser();
         if (user == null) {
             return Reply.saying().unauthorized();
         }
@@ -201,6 +206,7 @@ public class DeviceWebService {
     @At("/:deviceId/:eventId")
     @Delete
     public Reply<?> deleteEvent(@Named("deviceId") String deviceId, @Named("eventId") String eventId) {
+        final User user = userService.getCurrentUser();
         if (user == null) {
             return Reply.saying().unauthorized();
         }
@@ -212,7 +218,7 @@ public class DeviceWebService {
             return Reply.saying().forbidden();
         }
         
-        triggerUserSync(deviceId);
+        triggerUserSync(user, deviceId);
         
         return Reply.saying().ok();
     }
@@ -221,6 +227,7 @@ public class DeviceWebService {
     @Put
     public Reply<?> addEvent(Request request, @Named("deviceId") String deviceId,
             @Named("eventId") String eventId) {
+        final User user = userService.getCurrentUser();
         if (user == null) {
             return Reply.saying().unauthorized();
         }
@@ -242,12 +249,12 @@ public class DeviceWebService {
             return Reply.saying().notFound();
         }
         
-        triggerUserSync(deviceId);
+        triggerUserSync(user, deviceId);
         
         return Reply.saying().ok();
     }
     
-    private void triggerUserSync(String deviceIdSource) {
+    private void triggerUserSync(User user, String deviceIdSource) {
         // Use a queue to close the Http request as soon as possible.
         logger.info("Queue device sync for user " + user.getEmail());
         syncQueue.add(withUrl(SyncQueue.URI).param(SyncQueue.USER_PARAM, user.getEmail()).param(

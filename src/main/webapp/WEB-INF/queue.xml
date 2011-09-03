@@ -8,4 +8,8 @@
         <name>sync</name>
         <rate>5/m</rate>
     </queue>
+    <queue>
+        <name>session</name>
+        <rate>2/m</rate>
+    </queue>
 </queue-entries>
