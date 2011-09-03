@@ -15,6 +15,8 @@
  */
 package com.pixmob.droidlink.gae.web.service;
 
+import static com.google.appengine.api.taskqueue.TaskOptions.Builder.withUrl;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -25,6 +27,7 @@ import java.util.logging.Logger;
 
 import javax.annotation.Nullable;
 
+import com.google.appengine.api.taskqueue.Queue;
 import com.google.appengine.api.users.User;
 import com.google.inject.Inject;
 import com.google.inject.name.Named;
@@ -36,6 +39,7 @@ import com.google.sitebricks.headless.Service;
 import com.google.sitebricks.http.Delete;
 import com.google.sitebricks.http.Get;
 import com.google.sitebricks.http.Put;
+import com.pixmob.droidlink.gae.queue.SyncQueue;
 import com.pixmob.droidlink.gae.service.AccessDeniedException;
 import com.pixmob.droidlink.gae.service.Device;
 import com.pixmob.droidlink.gae.service.DeviceNotFoundException;
@@ -43,7 +47,6 @@ import com.pixmob.droidlink.gae.service.DeviceService;
 import com.pixmob.droidlink.gae.service.Event;
 import com.pixmob.droidlink.gae.service.EventNotFoundException;
 import com.pixmob.droidlink.gae.service.EventType;
-import com.pixmob.droidlink.gae.service.PushService;
 
 /**
  * Remote API for managing devices.
@@ -64,17 +67,17 @@ public class DeviceWebService {
     private final Logger logger = Logger.getLogger(getClass().getName());
     private final User user;
     private final DeviceService deviceService;
-    private final PushService pushService;
+    private final Queue syncQueue;
     
     /**
      * Package protected constructor: use Guice to get an instance of this
      * class.
      */
     @Inject
-    DeviceWebService(final DeviceService deviceService, final PushService pushService,
+    DeviceWebService(final DeviceService deviceService, @Named("sync") final Queue syncQueue,
             @Nullable final User user) {
         this.deviceService = deviceService;
-        this.pushService = pushService;
+        this.syncQueue = syncQueue;
         this.user = user;
     }
     
@@ -245,7 +248,9 @@ public class DeviceWebService {
     }
     
     private void triggerUserSync(String deviceIdSource) {
-        logger.info("Trigger user sync through C2DM for user " + user.getEmail());
-        pushService.syncDevices(user.getEmail(), deviceIdSource);
+        // Use a queue to close the Http request as soon as possible.
+        logger.info("Queue device sync for user " + user.getEmail());
+        syncQueue.add(withUrl(SyncQueue.URI).param(SyncQueue.USER_PARAM, user.getEmail()).param(
+            SyncQueue.DEVICE_ID_SOURCE_PARAM, deviceIdSource));
     }
 }
