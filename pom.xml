@@ -126,6 +126,11 @@ The web site is running on Google AppEngine.</description>
                 </exclusion>
             </exclusions>
         </dependency>
+        <dependency>
+            <groupId>com.google.appengine</groupId>
+            <artifactId>appengine-api-labs</artifactId>
+            <version>${gae.version}</version>
+        </dependency>
 
         <dependency>
             <groupId>com.google.sitebricks</groupId>

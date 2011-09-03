@@ -22,17 +22,23 @@ import com.google.appengine.api.taskqueue.Queue;
 import com.google.appengine.api.taskqueue.QueueFactory;
 import com.google.appengine.api.users.UserService;
 import com.google.appengine.api.users.UserServiceFactory;
+import com.google.appengine.tools.appstats.AppstatsFilter;
+import com.google.appengine.tools.appstats.AppstatsServlet;
 import com.google.inject.AbstractModule;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import com.google.inject.Singleton;
 import com.google.inject.name.Names;
 import com.google.inject.servlet.GuiceServletContextListener;
+import com.google.inject.servlet.ServletModule;
 import com.google.sitebricks.SitebricksModule;
 import com.pixmob.droidlink.gae.queue.SyncQueue;
 import com.pixmob.droidlink.gae.service.ServiceModule;
 import com.pixmob.droidlink.gae.web.service.ClearCacheWebService;
 import com.pixmob.droidlink.gae.web.service.DeviceWebService;
 import com.pixmob.droidlink.gae.web.service.SyncWebService;
+
+import freemarker.log.Logger;
 
 /**
  * Guice application configuration.
@@ -41,8 +47,8 @@ import com.pixmob.droidlink.gae.web.service.SyncWebService;
 public class AppConfig extends GuiceServletContextListener {
     @Override
     protected Injector getInjector() {
-        return Guice.createInjector(new AppEngineModule(), new ServiceModule(), new WebModule(),
-            new C2DMModule());
+        return Guice.createInjector(new AppstatsModule(), new AppEngineModule(),
+            new ServiceModule(), new WebModule(), new C2DMModule());
     }
     
     /**
@@ -70,6 +76,29 @@ public class AppConfig extends GuiceServletContextListener {
             at(SyncWebService.URI).serve(SyncWebService.class);
             at(SyncQueue.URI).serve(SyncQueue.class);
             at(ClearCacheWebService.URI).serve(ClearCacheWebService.class);
+        }
+    }
+    
+    /**
+     * Guice configuration module for AppEngine statistics.
+     * @author Pixmob
+     */
+    static class AppstatsModule extends ServletModule {
+        private final Logger logger = Logger.getLogger(getClass().getName());
+        
+        @Override
+        protected void configureServlets() {
+            if (Constants.ENABLE_APPSTATS) {
+                try {
+                    bind(AppstatsFilter.class).in(Singleton.class);
+                    bind(AppstatsServlet.class).in(Singleton.class);
+                    
+                    serve("/appstats", "/appstats/*").with(AppstatsServlet.class);
+                    filter("/*").through(AppstatsFilter.class);
+                } catch (Exception e) {
+                    logger.error("Cannot setup Appstats", e);
+                }
+            }
         }
     }
 }

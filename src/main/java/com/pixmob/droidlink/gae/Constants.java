@@ -25,6 +25,8 @@ public final class Constants {
     public static final String C2DM_MESSAGE_SYNC = "sync";
     public static final String C2DM_ACCOUNT_EXTRA = "account";
     
+    public static final boolean ENABLE_APPSTATS = true;
+    
     private Constants() {
     }
 }
