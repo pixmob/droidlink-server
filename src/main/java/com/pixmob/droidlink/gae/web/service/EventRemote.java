@@ -15,13 +15,18 @@
  */
 package com.pixmob.droidlink.gae.web.service;
 
+import java.io.Externalizable;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
+
 import com.pixmob.droidlink.gae.service.Event;
 
 /**
  * Remote representation of a {@link Event} entity.
  * @author Pixmob
  */
-class EventRemote {
+public class EventRemote implements Externalizable {
     public String id;
     public long created;
     public int type;
@@ -87,5 +92,34 @@ class EventRemote {
     
     public void setMessage(String message) {
         this.message = message;
+    }
+    
+    @Override
+    public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
+        id = in.readUTF();
+        type = in.readInt();
+        created = in.readLong();
+        number = readUTF(in);
+        name = readUTF(in);
+        message = readUTF(in);
+    }
+    
+    @Override
+    public void writeExternal(ObjectOutput out) throws IOException {
+        out.writeUTF(id);
+        out.writeInt(type);
+        out.writeLong(created);
+        writeUTF(out, number);
+        writeUTF(out, name);
+        writeUTF(out, message);
+    }
+    
+    private static String readUTF(ObjectInput in) throws IOException {
+        final String s = in.readUTF();
+        return "".equals(s) ? null : s;
+    }
+    
+    private static void writeUTF(ObjectOutput out, String str) throws IOException {
+        out.writeUTF(str == null ? "" : str);
     }
 }

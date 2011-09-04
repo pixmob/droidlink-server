@@ -15,13 +15,18 @@
  */
 package com.pixmob.droidlink.gae.web.service;
 
+import java.io.Externalizable;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
+
 import com.pixmob.droidlink.gae.service.Device;
 
 /**
  * Remote representation of a {@link Device} entity.
  * @author Pixmob
  */
-class DeviceRemote {
+public class DeviceRemote implements Externalizable {
     public String id;
     public String name;
     public String c2dm;
@@ -32,7 +37,8 @@ class DeviceRemote {
     public DeviceRemote(final Device device) {
         id = device.id;
         name = device.name;
-        c2dm = device.c2dm;
+        
+        // Note: the C2DM key is not included from the datastore to the client.
     }
     
     public String getId() {
@@ -57,5 +63,28 @@ class DeviceRemote {
     
     public void setC2dm(String c2dm) {
         this.c2dm = c2dm;
+    }
+    
+    @Override
+    public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
+        id = in.readUTF();
+        name = readUTF(in);
+        c2dm = readUTF(in);
+    }
+    
+    @Override
+    public void writeExternal(ObjectOutput out) throws IOException {
+        out.writeUTF(id);
+        writeUTF(out, name);
+        writeUTF(out, c2dm);
+    }
+    
+    private static String readUTF(ObjectInput in) throws IOException {
+        final String s = in.readUTF();
+        return "".equals(s) ? null : s;
+    }
+    
+    private static void writeUTF(ObjectOutput out, String str) throws IOException {
+        out.writeUTF(str == null ? "" : str);
     }
 }

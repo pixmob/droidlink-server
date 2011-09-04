@@ -32,6 +32,7 @@ import com.google.inject.name.Names;
 import com.google.inject.servlet.GuiceServletContextListener;
 import com.google.inject.servlet.ServletModule;
 import com.google.sitebricks.SitebricksModule;
+import com.pixmob.droidlink.gae.queue.CacheQueue;
 import com.pixmob.droidlink.gae.queue.SyncQueue;
 import com.pixmob.droidlink.gae.service.ServiceModule;
 import com.pixmob.droidlink.gae.web.service.ClearCacheWebService;
@@ -60,6 +61,8 @@ public class AppConfig extends GuiceServletContextListener {
         protected void configure() {
             bind(Queue.class).annotatedWith(Names.named("sync")).toInstance(
                 QueueFactory.getQueue("sync"));
+            bind(Queue.class).annotatedWith(Names.named("cache")).toInstance(
+                QueueFactory.getQueue("cache"));
             bind(UserService.class).toInstance(UserServiceFactory.getUserService());
             bind(MemcacheService.class).toInstance(MemcacheServiceFactory.getMemcacheService());
         }
@@ -72,10 +75,14 @@ public class AppConfig extends GuiceServletContextListener {
     static class WebModule extends SitebricksModule {
         @Override
         protected void configureSitebricks() {
+            // Register web services.
             at(DeviceWebService.URI).serve(DeviceWebService.class);
             at(SyncWebService.URI).serve(SyncWebService.class);
-            at(SyncQueue.URI).serve(SyncQueue.class);
             at(ClearCacheWebService.URI).serve(ClearCacheWebService.class);
+            
+            // Register task queues.
+            at(SyncQueue.URI).serve(SyncQueue.class);
+            at(CacheQueue.URI).serve(CacheQueue.class);
         }
     }
     

@@ -17,6 +17,7 @@ package com.pixmob.droidlink.gae.service;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -164,7 +165,7 @@ public class DeviceService {
         return device;
     }
     
-    public void unregisterDevice(String user, String deviceId) throws AccessDeniedException {
+    public Set<String> unregisterDevice(String user, String deviceId) throws AccessDeniedException {
         checkNotNull(user, "User is required");
         
         final Objectify session = of.begin();
@@ -179,18 +180,23 @@ public class DeviceService {
                         .fetchKeys();
                 session.delete(events);
                 session.delete(Device.class, deviceId);
-            }
-        } else {
-            // Unregister every user device.
-            final Iterable<Key<Device>> devices = session.query(Device.class).filter("user", user)
-                    .fetchKeys();
-            for (final Key<Device> device : devices) {
-                final Iterable<Key<Event>> events = session.query(Event.class).ancestor(device)
-                        .fetchKeys();
-                session.delete(events);
-                session.delete(device);
+                return Collections.singleton(deviceId);
             }
         }
+        
+        // Unregister every user device.
+        final Iterable<Key<Device>> devices = session.query(Device.class).filter("user", user)
+                .fetchKeys();
+        final Set<String> deviceIds = new HashSet<String>(4);
+        for (final Key<Device> device : devices) {
+            final Iterable<Key<Event>> events = session.query(Event.class).ancestor(device)
+                    .fetchKeys();
+            session.delete(events);
+            session.delete(device);
+            deviceIds.add(deviceId);
+        }
+        
+        return deviceIds;
     }
     
     public void addEvent(String user, String deviceId, String eventId, long eventDate,
