@@ -15,9 +15,6 @@
  */
 package com.pixmob.droidlink.gae.queue;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
-
 import java.util.HashSet;
 import java.util.Set;
 import java.util.logging.Level;
@@ -57,9 +54,30 @@ public class CacheQueue {
     
     @Post
     public Reply<?> cacheUserData(Request request) {
-        final String user = request.param(USER_PARAM);
-        checkNotNull(user, "User is required");
-        checkArgument(user.length() != 0, "User is required");
+        String userParam = request.param(USER_PARAM);
+        if (userParam == null) {
+            // Cache data for every users.
+            for (final String user : deviceService.getRegisteredUsers()) {
+                try {
+                    cacheUserData(user);
+                } catch (Exception e) {
+                    return Reply.saying().error();
+                }
+            }
+        } else {
+            // Cache data for this user only.
+            try {
+                cacheUserData(userParam);
+            } catch (Exception e) {
+                return Reply.saying().error();
+            }
+        }
+        
+        return Reply.saying().ok();
+    }
+    
+    private void cacheUserData(String user) throws Exception {
+        logger.info("Cache data for user " + user);
         
         final String deviceCacheKey = getDeviceCacheKey(user);
         final Set<DeviceRemote> cachedDevices = new HashSet<DeviceRemote>(4);
@@ -79,14 +97,12 @@ public class CacheQueue {
                 logger.log(Level.WARNING, "Cannot cache events of device " + device.getId()
                         + " for user " + user, e);
                 memcacheService.delete(eventCacheKey);
-                return Reply.saying().error();
+                throw e;
             }
             
             memcacheService.put(eventCacheKey, cachedEvents);
             cachedEvents.clear();
         }
-        
-        return Reply.saying().ok();
     }
     
     /**

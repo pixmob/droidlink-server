@@ -128,6 +128,15 @@ public class DeviceService {
         return of.begin().query(Device.class).filter("user", user);
     }
     
+    public Iterable<String> getRegisteredUsers() {
+        final Set<String> users = new HashSet<String>(128);
+        for (final Device device : of.begin().query(Device.class)) {
+            users.add(device.user);
+        }
+        
+        return Collections.unmodifiableCollection(users);
+    }
+    
     public Device registerDevice(String user, String deviceId, String deviceName, String c2dm)
             throws AccessDeniedException {
         checkNotNull(user, "User is required");
