@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <cronentries>
     <cron>
-        <url>/tasks/cache</url>
+        <url>/cron/cache</url>
         <description>Repopulate the cache every day</description>
         <schedule>every day 00:00</schedule>
     </cron>
