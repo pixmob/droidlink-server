@@ -6,11 +6,7 @@
     </queue>
     <queue>
         <name>sync</name>
-        <rate>5/m</rate>
-    </queue>
-    <queue>
-        <name>cache</name>
-        <rate>2/m</rate>
+        <rate>10/m</rate>
     </queue>
     <queue>
         <name>session</name>
