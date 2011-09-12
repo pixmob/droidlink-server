@@ -106,21 +106,22 @@ public class DeviceService {
         return Iterables.concat(eventsByDevice);
     }
     
-    public void deleteEvent(String user, String deviceId, String eventId)
-            throws AccessDeniedException {
+    public Event deleteEvent(String user, String eventId) throws AccessDeniedException {
         checkNotNull(user, "User is required");
-        checkNotNull(deviceId, "Device identifier is required");
         
         final Objectify session = of.begin();
-        final Event event = session.find(new Key<Event>(new Key<Device>(Device.class, deviceId),
-                Event.class, eventId));
+        final Event event = session.find(new Key<Event>(Event.class, eventId));
         if (event != null) {
             final Device device = session.find(event.device);
             if (device != null && !user.equals(device.user)) {
                 throw new AccessDeniedException();
             }
             session.delete(event);
+            
+            return event;
         }
+        
+        return null;
     }
     
     public Iterable<Device> getDevices(String user) {

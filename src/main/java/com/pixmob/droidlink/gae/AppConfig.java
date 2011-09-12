@@ -32,12 +32,11 @@ import com.google.inject.name.Names;
 import com.google.inject.servlet.GuiceServletContextListener;
 import com.google.inject.servlet.ServletModule;
 import com.google.sitebricks.SitebricksModule;
-import com.pixmob.droidlink.gae.cron.CacheCron;
-import com.pixmob.droidlink.gae.queue.CacheQueue;
 import com.pixmob.droidlink.gae.queue.SyncQueue;
 import com.pixmob.droidlink.gae.service.ServiceModule;
 import com.pixmob.droidlink.gae.web.service.ClearCacheWebService;
 import com.pixmob.droidlink.gae.web.service.DeviceWebService;
+import com.pixmob.droidlink.gae.web.service.EventWebService;
 import com.pixmob.droidlink.gae.web.service.SyncWebService;
 
 import freemarker.log.Logger;
@@ -78,15 +77,12 @@ public class AppConfig extends GuiceServletContextListener {
         protected void configureSitebricks() {
             // Register web services.
             at(DeviceWebService.URI).serve(DeviceWebService.class);
+            at(EventWebService.URI).serve(EventWebService.class);
             at(SyncWebService.URI).serve(SyncWebService.class);
             at(ClearCacheWebService.URI).serve(ClearCacheWebService.class);
             
             // Register task queues.
             at(SyncQueue.URI).serve(SyncQueue.class);
-            at(CacheQueue.URI).serve(CacheQueue.class);
-            
-            // Register cron tasks.
-            at(CacheCron.URI).serve(CacheCron.class);
         }
     }
     

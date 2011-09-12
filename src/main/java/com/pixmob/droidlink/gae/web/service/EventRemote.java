@@ -33,12 +33,14 @@ public class EventRemote implements Externalizable {
     public String name;
     public String number;
     public String message;
+    public String deviceId;
     
     public EventRemote() {
     }
     
     public EventRemote(final Event event) {
         id = event.id;
+        deviceId = event.device.getName();
         created = event.date;
         type = event.type.ordinal();
         name = event.name;
@@ -97,6 +99,7 @@ public class EventRemote implements Externalizable {
     @Override
     public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
         id = in.readUTF();
+        deviceId = readUTF(in);
         type = in.readInt();
         created = in.readLong();
         number = readUTF(in);
@@ -107,6 +110,7 @@ public class EventRemote implements Externalizable {
     @Override
     public void writeExternal(ObjectOutput out) throws IOException {
         out.writeUTF(id);
+        writeUTF(out, deviceId);
         out.writeInt(type);
         out.writeLong(created);
         writeUTF(out, number);
