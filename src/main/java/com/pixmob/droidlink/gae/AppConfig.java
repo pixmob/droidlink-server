@@ -37,7 +37,6 @@ import com.pixmob.droidlink.gae.service.ServiceModule;
 import com.pixmob.droidlink.gae.web.service.ClearCacheWebService;
 import com.pixmob.droidlink.gae.web.service.DeviceWebService;
 import com.pixmob.droidlink.gae.web.service.EventWebService;
-import com.pixmob.droidlink.gae.web.service.SyncWebService;
 
 import freemarker.log.Logger;
 
@@ -78,7 +77,6 @@ public class AppConfig extends GuiceServletContextListener {
             // Register web services.
             at(DeviceWebService.URI).serve(DeviceWebService.class);
             at(EventWebService.URI).serve(EventWebService.class);
-            at(SyncWebService.URI).serve(SyncWebService.class);
             at(ClearCacheWebService.URI).serve(ClearCacheWebService.class);
             
             // Register task queues.
