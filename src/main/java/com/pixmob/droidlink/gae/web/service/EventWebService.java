@@ -100,9 +100,24 @@ public class EventWebService {
         return Reply.with(results).as(Json.class).type(JSON_MIME_TYPE);
     }
     
+    private Reply<?> deleteEvents() {
+        final User user = userService.getCurrentUser();
+        if (user == null) {
+            return Reply.saying().unauthorized();
+        }
+        
+        deviceService.deleteEvents(user.getEmail());
+        
+        return Reply.saying().ok();
+    }
+    
     @At("/:eventId")
     @Delete
     public Reply<?> deleteEvent(@Named("eventId") String eventId) {
+        if ("all".equals(eventId)) {
+            return deleteEvents();
+        }
+        
         final User user = userService.getCurrentUser();
         if (user == null) {
             return Reply.saying().unauthorized();

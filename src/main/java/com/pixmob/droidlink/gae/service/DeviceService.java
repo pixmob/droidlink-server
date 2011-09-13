@@ -126,6 +126,18 @@ public class DeviceService {
         return null;
     }
     
+    public void deleteEvents(String user) {
+        checkNotNull(user, "User is required");
+        
+        final Objectify session = of.begin();
+        for (final Key<Device> deviceKey : session.query(Device.class).filter("user", user)
+                .fetchKeys()) {
+            final Iterable<Key<Event>> eventKeys = session.query(Event.class).ancestor(deviceKey)
+                    .fetchKeys();
+            session.delete(eventKeys);
+        }
+    }
+    
     public Iterable<Device> getDevices(String user) {
         checkNotNull(user, "User is required");
         return of.begin().query(Device.class).filter("user", user);
