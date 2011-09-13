@@ -99,8 +99,10 @@ public class DeviceService {
         
         // Get events from every user device.
         final Set<Iterable<Event>> eventsByDevice = new HashSet<Iterable<Event>>(4);
-        for (final Device device : getDevices(user)) {
-            eventsByDevice.add(session.query(Event.class).ancestor(device));
+        final Iterable<Key<Device>> deviceKeys = session.query(Device.class).filter("user", user)
+                .fetchKeys();
+        for (final Key<Device> deviceKey : deviceKeys) {
+            eventsByDevice.add(session.query(Event.class).ancestor(deviceKey));
         }
         
         return Iterables.concat(eventsByDevice);
