@@ -25,6 +25,7 @@ import java.util.Set;
 import java.util.logging.Logger;
 
 import com.google.appengine.api.taskqueue.Queue;
+import com.google.appengine.api.taskqueue.TaskOptions;
 import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserService;
 import com.google.inject.Inject;
@@ -107,6 +108,7 @@ public class EventWebService {
         }
         
         deviceService.deleteEvents(user.getEmail());
+        triggerUserSync(user, null);
         
         return Reply.saying().ok();
     }
@@ -172,7 +174,11 @@ public class EventWebService {
     private void triggerUserSync(User user, String deviceIdSource) {
         // Use a queue to close the Http request as soon as possible.
         logger.info("Queue event sync for user " + user.getEmail());
-        syncQueue.add(withUrl(SyncQueue.URI).param(SyncQueue.USER_PARAM, user.getEmail()).param(
-            SyncQueue.DEVICE_ID_SOURCE_PARAM, deviceIdSource));
+        final TaskOptions taskOptions = withUrl(SyncQueue.URI).param(SyncQueue.USER_PARAM,
+            user.getEmail());
+        if (deviceIdSource != null) {
+            taskOptions.param(SyncQueue.DEVICE_ID_SOURCE_PARAM, deviceIdSource);
+        }
+        syncQueue.add(taskOptions);
     }
 }
