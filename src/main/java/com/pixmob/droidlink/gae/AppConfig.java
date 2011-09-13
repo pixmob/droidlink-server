@@ -101,7 +101,7 @@ public class AppConfig extends GuiceServletContextListener {
                     bind(AppstatsServlet.class).in(Singleton.class);
                     
                     serve("/appstats", "/appstats/*").with(AppstatsServlet.class);
-                    filter("/*").through(AppstatsFilter.class);
+                    filter("/api/*").through(AppstatsFilter.class);
                 } catch (Exception e) {
                     logger.error("Cannot setup Appstats", e);
                 }
