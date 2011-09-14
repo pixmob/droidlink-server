@@ -15,6 +15,11 @@
  */
 package com.pixmob.droidlink.gae.service;
 
+import java.io.Externalizable;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectOutput;
+
 import javax.persistence.Id;
 
 import com.googlecode.objectify.Key;
@@ -29,7 +34,7 @@ import com.googlecode.objectify.annotation.Unindexed;
  */
 @Cached
 @Unindexed
-public class Event {
+public class Event implements Externalizable {
     @Id
     @Indexed
     public String id;
@@ -43,4 +48,28 @@ public class Event {
     public String message;
     @Indexed
     public long update;
+    
+    @Override
+    public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException {
+        id = (String) in.readObject();
+        device = new Key<Device>(Device.class, (String) in.readObject());
+        type = EventType.valueOf((String) in.readObject());
+        date = in.readLong();
+        number = (String) in.readObject();
+        name = (String) in.readObject();
+        message = (String) in.readObject();
+        update = in.readLong();
+    }
+    
+    @Override
+    public void writeExternal(ObjectOutput out) throws IOException {
+        out.writeObject(id);
+        out.writeObject(device.getName());
+        out.writeObject(type.name());
+        out.writeLong(date);
+        out.writeObject(number);
+        out.writeObject(name);
+        out.writeObject(message);
+        out.writeLong(update);
+    }
 }

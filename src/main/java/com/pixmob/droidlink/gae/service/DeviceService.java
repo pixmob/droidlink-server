@@ -21,7 +21,10 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
+import com.google.appengine.api.memcache.InvalidValueException;
+import com.google.appengine.api.memcache.MemcacheService;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 import com.google.inject.Inject;
 import com.googlecode.objectify.Key;
 import com.googlecode.objectify.Objectify;
@@ -33,14 +36,16 @@ import com.googlecode.objectify.ObjectifyFactory;
  */
 public class DeviceService {
     private final ObjectifyFactory of;
+    private final MemcacheService memcacheService;
     
     /**
      * Package protected constructor: use Guice to get an instance of this
      * class.
      */
     @Inject
-    DeviceService(final ObjectifyFactory of) {
+    DeviceService(final ObjectifyFactory of, final MemcacheService memcacheService) {
         this.of = of;
+        this.memcacheService = memcacheService;
     }
     
     public Device getDevice(String user, String deviceId) throws DeviceNotFoundException,
@@ -80,6 +85,7 @@ public class DeviceService {
         return event;
     }
     
+    @SuppressWarnings("unchecked")
     public Iterable<Event> getEvents(String user, String deviceId) throws DeviceNotFoundException,
             AccessDeniedException {
         checkNotNull(user, "User is required");
@@ -102,10 +108,27 @@ public class DeviceService {
         final Iterable<Key<Device>> deviceKeys = session.query(Device.class).filter("user", user)
                 .fetchKeys();
         for (final Key<Device> deviceKey : deviceKeys) {
-            eventsByDevice.add(session.query(Event.class).ancestor(deviceKey));
+            final String eventsCacheKey = getEventsCacheKey(deviceKey.getName());
+            Iterable<Event> events = null;
+            try {
+                events = (Iterable<Event>) memcacheService.get(eventsCacheKey);
+            } catch (InvalidValueException e) {
+                // Memcache is not available or the value could not be read.
+                events = null;
+            }
+            if (events == null) {
+                events = session.query(Event.class).ancestor(deviceKey);
+                // Populate Memcache for faster access.
+                memcacheService.put(eventsCacheKey, Lists.newArrayList(events));
+            }
+            eventsByDevice.add(events);
         }
         
         return Iterables.concat(eventsByDevice);
+    }
+    
+    private static String getEventsCacheKey(String deviceId) {
+        return "events-" + deviceId;
     }
     
     public Event deleteEvent(String user, String eventId) throws AccessDeniedException {
@@ -119,6 +142,7 @@ public class DeviceService {
                 throw new AccessDeniedException();
             }
             session.delete(event);
+            memcacheService.delete(getEventsCacheKey(event.device.getName()));
             
             return event;
         }
@@ -135,6 +159,7 @@ public class DeviceService {
             final Iterable<Key<Event>> eventKeys = session.query(Event.class).ancestor(deviceKey)
                     .fetchKeys();
             session.delete(eventKeys);
+            memcacheService.delete(getEventsCacheKey(deviceKey.getName()));
         }
     }
     
@@ -203,6 +228,7 @@ public class DeviceService {
                 final Iterable<Key<Event>> events = session.query(Event.class).ancestor(device)
                         .fetchKeys();
                 session.delete(events);
+                memcacheService.delete(getEventsCacheKey(device.id));
                 session.delete(Device.class, deviceId);
                 return Collections.singleton(deviceId);
             }
@@ -216,6 +242,7 @@ public class DeviceService {
             final Iterable<Key<Event>> events = session.query(Event.class).ancestor(device)
                     .fetchKeys();
             session.delete(events);
+            memcacheService.delete(getEventsCacheKey(device.getName()));
             session.delete(device);
             deviceIds.add(deviceId);
         }
@@ -250,6 +277,7 @@ public class DeviceService {
         event.message = eventMessage;
         event.update = System.currentTimeMillis();
         session.put(event);
+        memcacheService.delete(getEventsCacheKey(deviceId));
     }
     
     public void cleanEvents(String deviceId, long maxAge) {
@@ -270,6 +298,7 @@ public class DeviceService {
                 
                 session.delete(eventsToDelete);
                 session.getTxn().commit();
+                memcacheService.delete(getEventsCacheKey(deviceId));
             } finally {
                 if (session.getTxn().isActive()) {
                     session.getTxn().rollback();
