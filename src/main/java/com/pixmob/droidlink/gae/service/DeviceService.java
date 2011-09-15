@@ -112,15 +112,18 @@ public class DeviceService {
         checkNotNull(user, "User is required");
         
         final Objectify session = of.begin();
-        final Event event = session.find(new Key<Event>(Event.class, eventId));
-        if (event != null) {
-            final Device device = session.find(event.device);
-            if (device != null && !user.equals(device.user)) {
-                throw new AccessDeniedException();
+        for (final Key<Device> deviceKey : session.query(Device.class).fetchKeys()) {
+            // Find the device which is linked to this event.
+            final Event event = session.find(new Key<Event>(deviceKey, Event.class, eventId));
+            if (event != null) {
+                final Device device = session.find(event.device);
+                if (device != null && !user.equals(device.user)) {
+                    throw new AccessDeniedException();
+                }
+                session.delete(event);
+                
+                return event;
             }
-            session.delete(event);
-            
-            return event;
         }
         
         return null;
