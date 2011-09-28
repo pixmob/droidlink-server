@@ -38,6 +38,7 @@ public class SyncQueue {
     public static final String URI = "/tasks/sync";
     public static final String USER_PARAM = "user";
     public static final String DEVICE_ID_SOURCE_PARAM = "deviceIdSource";
+    public static final String SYNC_TOKEN_PARAM = "token";
     private final Logger logger = Logger.getLogger(getClass().getName());
     private final PushService pushService;
     
@@ -53,9 +54,10 @@ public class SyncQueue {
         checkArgument(user.length() != 0, "User is required");
         
         final String deviceIdSource = request.param(DEVICE_ID_SOURCE_PARAM);
+        final String syncToken = request.param(SYNC_TOKEN_PARAM);
         
         logger.info("Sync devices for user " + user + " (deviceIdSource=" + deviceIdSource + ")");
-        pushService.syncDevices(user, deviceIdSource);
+        pushService.syncDevices(user, deviceIdSource, syncToken);
         
         return Reply.saying().ok();
     }

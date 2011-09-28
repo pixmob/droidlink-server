@@ -15,12 +15,15 @@
  */
 package com.pixmob.droidlink.gae.web.service;
 
+import static com.google.appengine.api.taskqueue.TaskOptions.Builder.withUrl;
 import static com.pixmob.droidlink.gae.Constants.JSON_MIME_TYPE;
 
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.logging.Logger;
 
+import com.google.appengine.api.taskqueue.Queue;
+import com.google.appengine.api.taskqueue.TaskOptions;
 import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserService;
 import com.google.inject.Inject;
@@ -33,6 +36,7 @@ import com.google.sitebricks.headless.Service;
 import com.google.sitebricks.http.Delete;
 import com.google.sitebricks.http.Get;
 import com.google.sitebricks.http.Put;
+import com.pixmob.droidlink.gae.queue.SyncQueue;
 import com.pixmob.droidlink.gae.service.AccessDeniedException;
 import com.pixmob.droidlink.gae.service.Device;
 import com.pixmob.droidlink.gae.service.DeviceNotFoundException;
@@ -49,15 +53,32 @@ public class DeviceWebService {
     private final Logger logger = Logger.getLogger(getClass().getName());
     private final UserService userService;
     private final DeviceService deviceService;
+    private final Queue syncQueue;
     
     /**
      * Package protected constructor: use Guice to get an instance of this
      * class.
      */
     @Inject
-    DeviceWebService(final DeviceService deviceService, final UserService userService) {
+    DeviceWebService(final DeviceService deviceService, final UserService userService,
+            @Named("sync") final Queue syncQueue) {
         this.deviceService = deviceService;
         this.userService = userService;
+        this.syncQueue = syncQueue;
+    }
+    
+    @At("/:deviceId/sync")
+    @Get
+    public Reply<?> syncDevices(@Named("deviceId") String deviceId, @Named("token") String token) {
+        final User user = userService.getCurrentUser();
+        if (user == null) {
+            return Reply.saying().unauthorized();
+        }
+        
+        logger.info("Sync user devices for " + user.getEmail());
+        triggerUserSync(user, deviceId, token);
+        
+        return Reply.saying().ok();
     }
     
     @At("/:deviceId")
@@ -132,6 +153,8 @@ public class DeviceWebService {
             return Reply.saying().forbidden();
         }
         
+        triggerUserSync(user, null, null);
+        
         return Reply.saying().ok();
     }
     
@@ -150,6 +173,22 @@ public class DeviceWebService {
             return Reply.saying().forbidden();
         }
         
+        triggerUserSync(user, deviceId, null);
+        
         return Reply.saying().ok();
+    }
+    
+    private void triggerUserSync(User user, String deviceIdSource, String token) {
+        // Use a queue to close the Http request as soon as possible.
+        logger.info("Queue event sync for user " + user.getEmail());
+        final TaskOptions taskOptions = withUrl(SyncQueue.URI).param(SyncQueue.USER_PARAM,
+            user.getEmail());
+        if (deviceIdSource != null) {
+            taskOptions.param(SyncQueue.DEVICE_ID_SOURCE_PARAM, deviceIdSource);
+        }
+        if (token != null) {
+            taskOptions.param(SyncQueue.SYNC_TOKEN_PARAM, token);
+        }
+        syncQueue.add(taskOptions);
     }
 }

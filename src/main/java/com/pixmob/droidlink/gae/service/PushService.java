@@ -38,7 +38,7 @@ public class PushService {
         this.c2dm = c2dm;
     }
     
-    public void syncDevices(String user, String deviceIdSource) {
+    public void syncDevices(String user, String deviceIdSource, String syncToken) {
         for (final Device device : deviceService.getDevices(user)) {
             if (device.id.equals(deviceIdSource) || device.c2dm == null) {
                 // The sync is not started for devices without a C2DM
@@ -50,7 +50,7 @@ public class PushService {
             final String collapseKey = Long.toHexString((user + "#" + device.id).hashCode());
             try {
                 c2dm.sendWithRetry(device.c2dm, collapseKey, Constants.C2DM_MESSAGE_EXTRA,
-                    Constants.C2DM_MESSAGE_SYNC, Constants.C2DM_ACCOUNT_EXTRA, user);
+                    Constants.C2DM_MESSAGE_SYNC, Constants.C2DM_SYNC_TOKEN_EXTRA, syncToken);
             } catch (IOException e) {
                 logger.log(Level.SEVERE, "Failed to trigger user sync with C2DM", e);
             }

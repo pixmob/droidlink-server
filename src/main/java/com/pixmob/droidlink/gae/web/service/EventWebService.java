@@ -15,7 +15,6 @@
  */
 package com.pixmob.droidlink.gae.web.service;
 
-import static com.google.appengine.api.taskqueue.TaskOptions.Builder.withUrl;
 import static com.pixmob.droidlink.gae.Constants.JSON_MIME_TYPE;
 
 import java.util.HashMap;
@@ -24,8 +23,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.logging.Logger;
 
-import com.google.appengine.api.taskqueue.Queue;
-import com.google.appengine.api.taskqueue.TaskOptions;
 import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserService;
 import com.google.inject.Inject;
@@ -38,7 +35,6 @@ import com.google.sitebricks.headless.Service;
 import com.google.sitebricks.http.Delete;
 import com.google.sitebricks.http.Get;
 import com.google.sitebricks.http.Put;
-import com.pixmob.droidlink.gae.queue.SyncQueue;
 import com.pixmob.droidlink.gae.service.AccessDeniedException;
 import com.pixmob.droidlink.gae.service.DeviceNotFoundException;
 import com.pixmob.droidlink.gae.service.DeviceService;
@@ -64,14 +60,11 @@ public class EventWebService {
     private final Logger logger = Logger.getLogger(getClass().getName());
     private final DeviceService deviceService;
     private final UserService userService;
-    private final Queue syncQueue;
     
     @Inject
-    EventWebService(final DeviceService deviceService, final UserService userService,
-            @Named("sync") final Queue syncQueue) {
+    EventWebService(final DeviceService deviceService, final UserService userService) {
         this.deviceService = deviceService;
         this.userService = userService;
-        this.syncQueue = syncQueue;
     }
     
     @Get
@@ -108,7 +101,6 @@ public class EventWebService {
         }
         
         deviceService.deleteEvents(user.getEmail());
-        triggerUserSync(user, null);
         
         return Reply.saying().ok();
     }
@@ -126,16 +118,10 @@ public class EventWebService {
         }
         
         logger.info("Delete event " + eventId);
-        final String deviceId;
         try {
-            final Event event = deviceService.deleteEvent(user.getEmail(), eventId);
-            deviceId = event != null ? event.device.getName() : null;
+            deviceService.deleteEvent(user.getEmail(), eventId);
         } catch (AccessDeniedException e) {
             return Reply.saying().forbidden();
-        }
-        
-        if (deviceId != null) {
-            triggerUserSync(user, deviceId);
         }
         
         return Reply.saying().ok();
@@ -166,19 +152,7 @@ public class EventWebService {
             return Reply.saying().notFound();
         }
         
-        triggerUserSync(user, event.deviceId);
-        
         return Reply.saying().ok();
     }
     
-    private void triggerUserSync(User user, String deviceIdSource) {
-        // Use a queue to close the Http request as soon as possible.
-        logger.info("Queue event sync for user " + user.getEmail());
-        final TaskOptions taskOptions = withUrl(SyncQueue.URI).param(SyncQueue.USER_PARAM,
-            user.getEmail());
-        if (deviceIdSource != null) {
-            taskOptions.param(SyncQueue.DEVICE_ID_SOURCE_PARAM, deviceIdSource);
-        }
-        syncQueue.add(taskOptions);
-    }
 }

@@ -23,7 +23,7 @@ public final class Constants {
     public static final String C2DM_SENDER_ID = "pixmobstudio@gmail.com";
     public static final String C2DM_MESSAGE_EXTRA = "message";
     public static final String C2DM_MESSAGE_SYNC = "sync";
-    public static final String C2DM_ACCOUNT_EXTRA = "account";
+    public static final String C2DM_SYNC_TOKEN_EXTRA = "token";
     
     public static final String JSON_MIME_TYPE = "application/json";
     
