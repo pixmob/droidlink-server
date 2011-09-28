@@ -69,13 +69,14 @@ public class DeviceWebService {
     
     @At("/:deviceId/sync")
     @Get
-    public Reply<?> syncDevices(@Named("deviceId") String deviceId, @Named("token") String token) {
+    public Reply<?> syncDevices(Request request, @Named("deviceId") String deviceId) {
         final User user = userService.getCurrentUser();
         if (user == null) {
             return Reply.saying().unauthorized();
         }
         
-        logger.info("Sync user devices for " + user.getEmail());
+        final String token = request.param("token");
+        logger.info("Sync user devices for " + user.getEmail() + "; token=" + token);
         triggerUserSync(user, deviceId, token);
         
         return Reply.saying().ok();
