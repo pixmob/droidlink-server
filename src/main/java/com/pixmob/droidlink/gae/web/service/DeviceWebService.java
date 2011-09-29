@@ -35,6 +35,7 @@ import com.google.sitebricks.headless.Request;
 import com.google.sitebricks.headless.Service;
 import com.google.sitebricks.http.Delete;
 import com.google.sitebricks.http.Get;
+import com.google.sitebricks.http.Post;
 import com.google.sitebricks.http.Put;
 import com.pixmob.droidlink.gae.queue.SyncQueue;
 import com.pixmob.droidlink.gae.service.AccessDeniedException;
@@ -68,14 +69,14 @@ public class DeviceWebService {
     }
     
     @At("/:deviceId/sync")
-    @Get
+    @Post
     public Reply<?> syncDevices(Request request, @Named("deviceId") String deviceId) {
         final User user = userService.getCurrentUser();
         if (user == null) {
             return Reply.saying().unauthorized();
         }
         
-        final String token = request.param("token");
+        final String token = request.read(SyncTokenRemote.class).as(Json.class).token;
         logger.info("Sync user devices for " + user.getEmail() + "; token=" + token);
         triggerUserSync(user, deviceId, token);
         
