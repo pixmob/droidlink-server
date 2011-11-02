@@ -13,31 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.pixmob.droidlink.gae.service;
-
-import javax.persistence.Id;
-
-import com.googlecode.objectify.annotation.Cached;
-import com.googlecode.objectify.annotation.Indexed;
-import com.googlecode.objectify.annotation.Unindexed;
+package org.pixmob.droidlink.gae;
 
 /**
- * Device datastore entity.
+ * Application constants.
  * @author Pixmob
  */
-@Cached
-@Unindexed
-public class Device {
-    @Id
-    @Indexed
-    public String id;
-    @Indexed
-    public String user;
-    public String name;
-    public String c2dm;
+public final class Constants {
+    public static final String C2DM_SENDER_ID = "pixmobstudio@gmail.com";
+    public static final String C2DM_MESSAGE_EXTRA = "message";
+    public static final String C2DM_MESSAGE_SYNC = "sync";
+    public static final String C2DM_SYNC_TOKEN_EXTRA = "token";
     
-    @Override
-    public String toString() {
-        return "Device[id=" + id + ", user=" + user + "]";
+    public static final String JSON_MIME_TYPE = "application/json";
+    
+    public static final boolean ENABLE_APPSTATS = true;
+    
+    private Constants() {
     }
 }

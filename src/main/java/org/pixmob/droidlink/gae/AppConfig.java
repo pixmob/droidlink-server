@@ -13,7 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.pixmob.droidlink.gae;
+package org.pixmob.droidlink.gae;
+
+import org.pixmob.droidlink.gae.queue.SyncQueue;
+import org.pixmob.droidlink.gae.service.ServiceModule;
+import org.pixmob.droidlink.gae.web.service.ClearCacheWebService;
+import org.pixmob.droidlink.gae.web.service.DeviceWebService;
+import org.pixmob.droidlink.gae.web.service.EventWebService;
 
 import com.google.android.c2dm.server.C2DMModule;
 import com.google.appengine.api.memcache.MemcacheService;
@@ -32,11 +38,6 @@ import com.google.inject.name.Names;
 import com.google.inject.servlet.GuiceServletContextListener;
 import com.google.inject.servlet.ServletModule;
 import com.google.sitebricks.SitebricksModule;
-import com.pixmob.droidlink.gae.queue.SyncQueue;
-import com.pixmob.droidlink.gae.service.ServiceModule;
-import com.pixmob.droidlink.gae.web.service.ClearCacheWebService;
-import com.pixmob.droidlink.gae.web.service.DeviceWebService;
-import com.pixmob.droidlink.gae.web.service.EventWebService;
 
 import freemarker.log.Logger;
 

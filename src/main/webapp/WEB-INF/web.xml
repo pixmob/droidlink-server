@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <web-app xmlns="http://java.sun.com/xml/ns/javaee" version="2.5">
     <listener>
-        <listener-class>com.pixmob.droidlink.gae.AppConfig</listener-class>
+        <listener-class>org.pixmob.droidlink.gae.AppConfig</listener-class>
     </listener>
 
     <filter>

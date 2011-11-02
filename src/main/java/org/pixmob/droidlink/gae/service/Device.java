@@ -13,34 +13,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.pixmob.droidlink.gae.service;
+package org.pixmob.droidlink.gae.service;
 
 import javax.persistence.Id;
 
-import com.googlecode.objectify.Key;
 import com.googlecode.objectify.annotation.Cached;
 import com.googlecode.objectify.annotation.Indexed;
-import com.googlecode.objectify.annotation.Parent;
 import com.googlecode.objectify.annotation.Unindexed;
 
 /**
- * Event datastore entity.
+ * Device datastore entity.
  * @author Pixmob
  */
 @Cached
 @Unindexed
-public class Event {
+public class Device {
     @Id
     @Indexed
     public String id;
-    @Parent
     @Indexed
-    public Key<Device> device;
-    public EventType type;
-    public long date;
-    public String number;
+    public String user;
     public String name;
-    public String message;
-    @Indexed
-    public long update;
+    public String c2dm;
+    
+    @Override
+    public String toString() {
+        return "Device[id=" + id + ", user=" + user + "]";
+    }
 }

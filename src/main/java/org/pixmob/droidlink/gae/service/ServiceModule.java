@@ -13,22 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.pixmob.droidlink.gae;
+package org.pixmob.droidlink.gae.service;
+
+import com.google.inject.AbstractModule;
+import com.google.inject.Singleton;
+import com.googlecode.objectify.ObjectifyFactory;
 
 /**
- * Application constants.
+ * Guice configuration module for this package.
  * @author Pixmob
  */
-public final class Constants {
-    public static final String C2DM_SENDER_ID = "pixmobstudio@gmail.com";
-    public static final String C2DM_MESSAGE_EXTRA = "message";
-    public static final String C2DM_MESSAGE_SYNC = "sync";
-    public static final String C2DM_SYNC_TOKEN_EXTRA = "token";
-    
-    public static final String JSON_MIME_TYPE = "application/json";
-    
-    public static final boolean ENABLE_APPSTATS = true;
-    
-    private Constants() {
+public class ServiceModule extends AbstractModule {
+    @Override
+    protected void configure() {
+        final ObjectifyFactory of = new ObjectifyFactory();
+        of.register(Device.class);
+        of.register(Event.class);
+        bind(ObjectifyFactory.class).toInstance(of);
+        
+        bind(DeviceService.class).in(Singleton.class);
+        bind(PushService.class).in(Singleton.class);
     }
 }

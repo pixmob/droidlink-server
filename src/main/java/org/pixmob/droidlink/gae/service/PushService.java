@@ -13,15 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.pixmob.droidlink.gae.service;
+package org.pixmob.droidlink.gae.service;
 
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.pixmob.droidlink.gae.Constants;
+
 import com.google.android.c2dm.server.C2DMessaging;
 import com.google.inject.Inject;
-import com.pixmob.droidlink.gae.Constants;
 
 /**
  * Send push notifications to user devices.

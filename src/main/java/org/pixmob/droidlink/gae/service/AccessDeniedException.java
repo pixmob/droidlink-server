@@ -13,12 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.pixmob.droidlink.gae.service;
+package org.pixmob.droidlink.gae.service;
 
 /**
- * {@link Event} type.
+ * Exception when an access to a resource was denied.
  * @author Pixmob
  */
-public enum EventType {
-    MISSED_CALL, RECEIVED_SMS
+public class AccessDeniedException extends Exception {
+    private static final long serialVersionUID = 1L;
+    
+    public AccessDeniedException() {
+        super("Access denied to resource");
+    }
 }

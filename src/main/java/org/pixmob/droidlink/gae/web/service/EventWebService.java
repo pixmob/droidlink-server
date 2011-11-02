@@ -13,15 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.pixmob.droidlink.gae.web.service;
+package org.pixmob.droidlink.gae.web.service;
 
-import static com.pixmob.droidlink.gae.Constants.JSON_MIME_TYPE;
+import static org.pixmob.droidlink.gae.Constants.JSON_MIME_TYPE;
 
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.logging.Logger;
+
+import org.pixmob.droidlink.gae.service.AccessDeniedException;
+import org.pixmob.droidlink.gae.service.DeviceNotFoundException;
+import org.pixmob.droidlink.gae.service.DeviceService;
+import org.pixmob.droidlink.gae.service.Event;
+import org.pixmob.droidlink.gae.service.EventType;
 
 import com.google.appengine.api.users.User;
 import com.google.appengine.api.users.UserService;
@@ -35,11 +41,6 @@ import com.google.sitebricks.headless.Service;
 import com.google.sitebricks.http.Delete;
 import com.google.sitebricks.http.Get;
 import com.google.sitebricks.http.Put;
-import com.pixmob.droidlink.gae.service.AccessDeniedException;
-import com.pixmob.droidlink.gae.service.DeviceNotFoundException;
-import com.pixmob.droidlink.gae.service.DeviceService;
-import com.pixmob.droidlink.gae.service.Event;
-import com.pixmob.droidlink.gae.service.EventType;
 
 /**
  * Remote API for managing device events.

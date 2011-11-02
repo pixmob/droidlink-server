@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.pixmob.droidlink.gae.service;
+package org.pixmob.droidlink.gae.service;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 

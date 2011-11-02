@@ -13,14 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.pixmob.droidlink.gae.web.service;
+package org.pixmob.droidlink.gae.web.service;
 
 import static com.google.appengine.api.taskqueue.TaskOptions.Builder.withUrl;
-import static com.pixmob.droidlink.gae.Constants.JSON_MIME_TYPE;
+import static org.pixmob.droidlink.gae.Constants.JSON_MIME_TYPE;
 
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.logging.Logger;
+
+import org.pixmob.droidlink.gae.queue.SyncQueue;
+import org.pixmob.droidlink.gae.service.AccessDeniedException;
+import org.pixmob.droidlink.gae.service.Device;
+import org.pixmob.droidlink.gae.service.DeviceNotFoundException;
+import org.pixmob.droidlink.gae.service.DeviceService;
 
 import com.google.appengine.api.taskqueue.Queue;
 import com.google.appengine.api.taskqueue.TaskOptions;
@@ -37,11 +43,6 @@ import com.google.sitebricks.http.Delete;
 import com.google.sitebricks.http.Get;
 import com.google.sitebricks.http.Post;
 import com.google.sitebricks.http.Put;
-import com.pixmob.droidlink.gae.queue.SyncQueue;
-import com.pixmob.droidlink.gae.service.AccessDeniedException;
-import com.pixmob.droidlink.gae.service.Device;
-import com.pixmob.droidlink.gae.service.DeviceNotFoundException;
-import com.pixmob.droidlink.gae.service.DeviceService;
 
 /**
  * Remote API for managing devices.

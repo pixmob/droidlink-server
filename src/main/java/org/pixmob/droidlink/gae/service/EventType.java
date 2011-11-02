@@ -13,22 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.pixmob.droidlink.gae.service;
+package org.pixmob.droidlink.gae.service;
 
 /**
- * Exception when an {@link Event} is not found.
+ * {@link Event} type.
  * @author Pixmob
  */
-public class EventNotFoundException extends Exception {
-    private static final long serialVersionUID = 1L;
-    private final String eventId;
-    
-    public EventNotFoundException(final String eventId) {
-        super("Event not found: " + eventId);
-        this.eventId = eventId;
-    }
-    
-    public String getEventId() {
-        return eventId;
-    }
+public enum EventType {
+    MISSED_CALL, RECEIVED_SMS
 }

@@ -13,22 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.pixmob.droidlink.gae.service;
+package org.pixmob.droidlink.gae.service;
 
 /**
- * Exception when a {@link Device} is not found.
+ * Exception when an {@link Event} is not found.
  * @author Pixmob
  */
-public class DeviceNotFoundException extends Exception {
+public class EventNotFoundException extends Exception {
     private static final long serialVersionUID = 1L;
-    private final String deviceId;
+    private final String eventId;
     
-    public DeviceNotFoundException(final String deviceId) {
-        super("Device not found: " + deviceId);
-        this.deviceId = deviceId;
+    public EventNotFoundException(final String eventId) {
+        super("Event not found: " + eventId);
+        this.eventId = eventId;
     }
     
-    public String getDeviceId() {
-        return deviceId;
+    public String getEventId() {
+        return eventId;
     }
 }

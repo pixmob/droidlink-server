@@ -13,25 +13,34 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.pixmob.droidlink.gae.service;
+package org.pixmob.droidlink.gae.service;
 
-import com.google.inject.AbstractModule;
-import com.google.inject.Singleton;
-import com.googlecode.objectify.ObjectifyFactory;
+import javax.persistence.Id;
+
+import com.googlecode.objectify.Key;
+import com.googlecode.objectify.annotation.Cached;
+import com.googlecode.objectify.annotation.Indexed;
+import com.googlecode.objectify.annotation.Parent;
+import com.googlecode.objectify.annotation.Unindexed;
 
 /**
- * Guice configuration module for this package.
+ * Event datastore entity.
  * @author Pixmob
  */
-public class ServiceModule extends AbstractModule {
-    @Override
-    protected void configure() {
-        final ObjectifyFactory of = new ObjectifyFactory();
-        of.register(Device.class);
-        of.register(Event.class);
-        bind(ObjectifyFactory.class).toInstance(of);
-        
-        bind(DeviceService.class).in(Singleton.class);
-        bind(PushService.class).in(Singleton.class);
-    }
+@Cached
+@Unindexed
+public class Event {
+    @Id
+    @Indexed
+    public String id;
+    @Parent
+    @Indexed
+    public Key<Device> device;
+    public EventType type;
+    public long date;
+    public String number;
+    public String name;
+    public String message;
+    @Indexed
+    public long update;
 }

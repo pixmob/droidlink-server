@@ -13,14 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.pixmob.droidlink.gae.web.service;
+package org.pixmob.droidlink.gae.web.service;
 
 import java.io.Externalizable;
 import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 
-import com.pixmob.droidlink.gae.service.Event;
+import org.pixmob.droidlink.gae.service.Event;
+
 
 /**
  * Remote representation of a {@link Event} entity.

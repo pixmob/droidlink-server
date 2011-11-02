@@ -13,16 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.pixmob.droidlink.gae.service;
+package org.pixmob.droidlink.gae.service;
 
 /**
- * Exception when an access to a resource was denied.
+ * Exception when a {@link Device} is not found.
  * @author Pixmob
  */
-public class AccessDeniedException extends Exception {
+public class DeviceNotFoundException extends Exception {
     private static final long serialVersionUID = 1L;
+    private final String deviceId;
     
-    public AccessDeniedException() {
-        super("Access denied to resource");
+    public DeviceNotFoundException(final String deviceId) {
+        super("Device not found: " + deviceId);
+        this.deviceId = deviceId;
+    }
+    
+    public String getDeviceId() {
+        return deviceId;
     }
 }
