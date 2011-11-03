@@ -35,7 +35,7 @@ The web site is running on Google AppEngine.</description>
     </developers>
 
     <properties>
-        <gae.version>1.5.2</gae.version>
+        <gae.version>1.5.5</gae.version>
     </properties>
 
     <build>
